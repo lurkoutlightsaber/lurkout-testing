@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roblox Game Data Streamer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    h1 { color: #00ff88; text-align: center; }
+    .session-box {
+      background: #333;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    #key {
+      font-size: 28px;
+      font-family: monospace;
+      color: #00ff88;
+      letter-spacing: 2px;
+      margin: 10px 0;
+      padding: 10px;
+      background: #000;
+      border-radius: 5px;
+    }
+    button {
+      background: #00ff88;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+    button:hover { background: #00cc66; }
+    #status { font-size: 18px; margin: 20px 0; }
+    #data {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-height: 600px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+    .connected { color: #00ff88; }
+    .disconnected { color: #ff4444; }
+  </style>
+</head>
+<body>
+  <h1>🎮 Roblox Workspace Parts Streamer</h1>
+  
+  <div class="session-box">
+    <label><strong>📋 Session Key (Copy & Paste into Lua):</strong></label><br>
+    <div id="key">Generating...</div>
+    <br>
+    <button onclick="copyKey()">📋 Copy Key</button>
+    <button onclick="refreshKey()">🔄 New Key</button>
+  </div>
+  
+  <div id="status" class="disconnected">🔌 Connecting to server...</div>
+  
+  <h2>📊 Live Game Data (Workspace BaseParts):</h2>
+  <div id="data">Waiting for data... <br>💡 Execute Lua script in Roblox after copying key!</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
