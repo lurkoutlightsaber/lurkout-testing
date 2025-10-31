@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roblox Live Game Tree</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #f0f6fc;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --red: #f85149;
+      --mono: 'Fira Code', 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 1.5rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { text-align: center; color: var(--accent); margin: 0 0 1.5rem; font-size: 2rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .key-box {
+      text-align: center;
+      font-size: 1.8rem;
+      font-family: var(--mono);
+      background: #000;
+      color: var(--green);
+      padding: 1rem;
+      border-radius: 8px;
+      letter-spacing: 2px;
+      margin: 1rem 0;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.3rem;
+      margin: 0.3rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { background: #1f6feb; transform: translateY(-1px); }
+    .debug-toggle {
+      background: #30363d;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    .debug-panel {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    .debug-panel.show { display: block; }
+    #status { font-weight: bold; font-size: 1.1rem; }
+    #data {
+      background: #000;
+      color: #0f0;
+      padding: 1rem;
+      border-radius: 8px;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      border: 1px solid #30363d;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #8b949e;
+    }
+    .status-ok { color: var(--green); }
+    .status-error { color: var(--red); }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>Roblox Live Game Tree Stream</h1>
+
+    <!-- Session Key -->
+    <div class="card">
+      <p><strong>Session Key (Copy & Paste into Lua):</strong></p>
+      <div class="key-box" id="key">Generating...</div>
+      <div style="text-align:center; margin-top:1rem">
+        <button onclick="copyKey()">Copy Key</button>
+        <button onclick="newKey()">New Key</button>
+        <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
+      </div>
+    </div>
+
+    <!-- Status & Data -->
+    <div class="card">
+      <div id="status" class="status-error">Connecting...</div>
+      <pre id="data">Waiting for full game tree...\n\nExecute example.lua after copying key!</pre>
+    </div>
+
+    <!-- Debug Panel -->
+    <div class="card">
+      <div class="debug-panel" id="debug">
+        <strong>Debug Log:</strong><br>
+        <span id="debug-log">Initialized.</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      GitHub Pages + Actions | Auto-refresh every 3s | Full tree on connect
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

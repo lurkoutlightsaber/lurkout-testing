@@ -1,46 +1,42 @@
-name: Update Roblox Data
+name: Update Roblox Game Tree
 
 on:
   repository_dispatch:
-    types: [roblox_data]
+    types: [roblox_tree]
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # needed to push the updated file
+      contents: write
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate & write payload
+      - name: Validate & Update
         env:
           PAYLOAD: ${{ github.event.client_payload }}
-          SESSION_KEY: ${{ secrets.SESSION_KEY }}   # <-- set in repo secrets
+          SESSION_KEY: ${{ secrets.SESSION_KEY }}
         run: |
-          # ---- 1. Decode JSON payload ----
           KEY=$(echo "$PAYLOAD" | jq -r .key)
-          DATA=$(echo "$PAYLOAD" | jq -c .data)
+          TREE=$(echo "$PAYLOAD" | jq -c .tree)
 
-          # ---- 2. Session-key check ----
           if [ "$KEY" != "$SESSION_KEY" ]; then
             echo "Invalid session key"
             exit 1
           fi
 
-          # ---- 3. Build new data.json ----
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           cat > api/data.json <<EOF
           {
             "lastUpdate": "$TIMESTAMP",
-            "parts": $DATA
+            "tree": $TREE
           }
           EOF
 
-          # ---- 4. Commit & push ----
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions@github.com"
           git add api/data.json
-          git commit -m "Roblox data update – $(date -u +"%H:%M:%S")"
-          git push
+          git commit -m "Game tree update - $TIMESTAMP"
+          git push || echo "No changes to push"
