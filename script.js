@@ -24,31 +24,38 @@ function copyKey() {
 
 function toggleDebug() { debugPanel.classList.toggle('show'); }
 
-// === AUTO-PAIR FROM ROBLOX ===
+// === AUTO-PAIR WITH EXACT MATCH ===
 async function checkPair() {
   try {
     const res = await fetch(`api/data.json?t=${Date.now()}`);
     if (!res.ok) return;
     const json = await res.json();
 
-    // EXACT STRING MATCH
-    if (json.key && json.key === SESSION_KEY) {
-      const count = json.parts?.length || Object.keys(json.tree || {}).length || json.players?.length || 0;
-      const time = json.lastUpdate ? new Date(json.lastUpdate).toLocaleTimeString() : 'never';
-      statusEl.textContent = `Live: ${time} | ${count} items`;
-      statusEl.className = "status-ok";
-      dataEl.textContent = JSON.stringify(json, null, 2);
-    } else if (json.key && !SESSION_KEY) {
-      SESSION_KEY = json.key.trim(); // TRIM WHITESPACE
+    const incomingKey = (json.key || "").trim();  // TRIM WHITESPACE
+
+    if (incomingKey && !SESSION_KEY) {
+      SESSION_KEY = incomingKey;
       keyEl.textContent = SESSION_KEY;
       copyBtn.style.display = "inline-block";
       controlPanel.style.display = "block";
-      statusEl.textContent = "Paired! Click buttons to send.";
+      statusEl.textContent = "Paired! Click to send.";
       statusEl.className = "status-ok";
-      log(`Paired with key: "${SESSION_KEY}"`);
+      log(`Paired with key: "${SESSION_KEY}" (len=${SESSION_KEY.length})`);
+    }
+
+    // EXACT MATCH
+    if (incomingKey === SESSION_KEY) {
+      const count = json.parts?.length || Object.keys(json.tree || {}).length || json.players?.length || 0;
+      const time = json.lastUpdate ? new Date(json.lastUpdate).toLocaleTimeString() : 'never';
+      statusEl.textContent = `Live: ${time} | ${count} items`;
+      dataEl.textContent = JSON.stringify(json, null, 2);
+    } else if (incomingKey && SESSION_KEY && incomingKey !== SESSION_KEY) {
+      log(`KEY MISMATCH: site="${incomingKey}" | local="${SESSION_KEY}"`);
+      statusEl.textContent = "Key mismatch! Re-execute script.";
+      statusEl.className = "status-error";
     }
   } catch (err) {
-    log(`Pair check failed: ${err.message}`);
+    log(`Fetch error: ${err.message}`);
   }
 }
 
@@ -62,7 +69,7 @@ function sendCommand(type) {
   }).then(() => log(`Command sent: ${type}`));
 }
 
-// Auto-check
+// Auto-refresh
 setInterval(checkPair, 3000);
 checkPair();
-log("Waiting for Roblox to send key...");
+log("Waiting for Roblox key...");

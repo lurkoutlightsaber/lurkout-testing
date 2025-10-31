@@ -1,46 +1,25 @@
-name: Update Roblox Data
+- name: Validate & Update
+  env:
+    PAYLOAD: ${{ github.event.client_payload }}
+  run: |
+    KEY=$(echo "$PAYLOAD" | jq -r '.key // empty' | tr -d '[:space:]')
+    TYPE=$(echo "$PAYLOAD" | jq -r '.type // empty')
+    DATA=$(echo "$PAYLOAD" | jq -c '.data // empty')
 
-on:
-  repository_dispatch:
-    types: [roblox_update]
+    if [ -z "$KEY" ]; then
+      echo "Missing key"
+      exit 1
+    fi
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    cat > api/data.json <<EOF
+    {
+      "key": "$KEY",
+      "lastUpdate": "$TIMESTAMP",
+      "$TYPE": $DATA
+    }
+    EOF
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Validate & Update
-        env:
-          PAYLOAD: ${{ github.event.client_payload }}
-        run: |
-          KEY=$(echo "$PAYLOAD" | jq -r '.key // empty')
-          TYPE=$(echo "$PAYLOAD" | jq -r '.type // empty')
-          DATA=$(echo "$PAYLOAD" | jq -c '.data // empty')
-
-          if [ -z "$KEY" ] || [ "$KEY" = "null" ]; then
-            echo "Missing key"
-            exit 1
-          fi
-
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          cat > api/data.json <<EOF
-          {
-            "key": "$KEY",
-            "lastUpdate": "$TIMESTAMP",
-            "$TYPE": $DATA
-          }
-          EOF
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions@github.com"
-          git add api/data.json
-          git commit -m "Update $TYPE - $TIMESTAMP" || echo "No changes"
-          git push || echo "Push failed"
+    git add api/data.json
+    git commit -m "Update $TYPE" || echo "No changes"
+    git push || echo "Push failed"
