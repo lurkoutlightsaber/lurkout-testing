@@ -1,0 +1,13 @@
+{
+  "name": "roblox-web-ui",
+  "version": "1.0.0",
+  "description": "Simple Roblox exploit Web UI for game data streaming",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  }
+}
