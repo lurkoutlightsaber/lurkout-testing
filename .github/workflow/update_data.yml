@@ -1,0 +1,46 @@
+name: Update Roblox Data
+
+on:
+  repository_dispatch:
+    types: [roblox_data]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # needed to push the updated file
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Validate & write payload
+        env:
+          PAYLOAD: ${{ github.event.client_payload }}
+          SESSION_KEY: ${{ secrets.SESSION_KEY }}   # <-- set in repo secrets
+        run: |
+          # ---- 1. Decode JSON payload ----
+          KEY=$(echo "$PAYLOAD" | jq -r .key)
+          DATA=$(echo "$PAYLOAD" | jq -c .data)
+
+          # ---- 2. Session-key check ----
+          if [ "$KEY" != "$SESSION_KEY" ]; then
+            echo "Invalid session key"
+            exit 1
+          fi
+
+          # ---- 3. Build new data.json ----
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > api/data.json <<EOF
+          {
+            "lastUpdate": "$TIMESTAMP",
+            "parts": $DATA
+          }
+          EOF
+
+          # ---- 4. Commit & push ----
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add api/data.json
+          git commit -m "Roblox data update – $(date -u +"%H:%M:%S")"
+          git push

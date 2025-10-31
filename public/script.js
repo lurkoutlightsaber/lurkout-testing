@@ -1,61 +1,48 @@
-let sessionKey = crypto.randomUUID();
-let ws = null;
+// === SESSION KEY ===
+const SESSION_KEY = crypto.randomUUID().toUpperCase();
 const keyEl = document.getElementById('key');
 const statusEl = document.getElementById('status');
 const dataEl = document.getElementById('data');
 
-function updateKey() {
-  keyEl.textContent = sessionKey;
-}
+keyEl.textContent = SESSION_KEY;
 
+// === UI FUNCTIONS ===
 function copyKey() {
-  navigator.clipboard.writeText(sessionKey).then(() => {
-    alert('✅ Session Key copied! Paste it into example.lua');
+  navigator.clipboard.writeText(SESSION_KEY).then(() => {
+    alert('Session key copied to clipboard!');
   });
 }
 
-function refreshKey() {
-  sessionKey = crypto.randomUUID();
-  updateKey();
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: 'set_session', key: sessionKey }));
+function newKey() {
+  if (confirm('Generate a new key? Current session will be invalidated.')) {
+    location.reload();
   }
 }
 
-function connectWS() {
-  ws = new WebSocket('ws://localhost:3000/ws');
-  
-  ws.onopen = () => {
-    statusEl.textContent = '✅ Connected! Set session key...';
-    statusEl.className = 'connected';
-    ws.send(JSON.stringify({ type: 'set_session', key: sessionKey }));
-  };
-  
-  ws.onmessage = (event) => {
-    try {
-      const msg = JSON.parse(event.data);
-      if (msg.type === 'session_set') {
-        statusEl.textContent = `✅ Paired! Waiting for Roblox data...`;
-      } else if (msg.type === 'data') {
-        dataEl.textContent = `📦 Parts Count: ${msg.data.length}\n\n` +
-          JSON.stringify(msg.data, null, 2);
-      }
-    } catch (e) {
-      console.error('WS msg error:', e);
-    }
-  };
-  
-  ws.onclose = () => {
-    statusEl.textContent = '❌ Disconnected. Reconnecting...';
-    statusEl.className = 'disconnected';
-    setTimeout(connectWS, 2000);
-  };
-  
-  ws.onerror = (e) => {
-    console.error('WS error:', e);
-  };
+// === LOAD DATA FROM api/data.json ===
+async function loadData() {
+  try {
+    const res = await fetch(`api/data.json?t=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+
+    const count = json.parts?.length || 0;
+    const time = json.lastUpdate ? new Date(json.lastUpdate).toLocaleTimeString() : 'never';
+
+    statusEl.textContent = `Last update: ${time} | Parts: ${count}`;
+    statusEl.style.color = '#00ff88';
+
+    dataEl.textContent = JSON.stringify(json, null, 2);
+  } catch (err) {
+    statusEl.textContent = `Error: ${err.message}`;
+    statusEl.style.color = '#ff6666';
+    dataEl.textContent = 'Failed to load data. Is the workflow running?';
+  }
 }
 
-// Init
-updateKey();
-connectWS();
+// Auto-refresh every 3 seconds
+loadData();
+setInterval(loadData, 3000);
+
+// Optional: expose for debugging
+window.SESSION_KEY = SESSION_KEY;

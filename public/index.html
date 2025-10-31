@@ -1,77 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Game Data Streamer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roblox Live Parts - GitHub Pages</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #1a1a1a;
-      color: #fff;
+    :root {
+      --bg: #111;
+      --card: #222;
+      --text: #eee;
+      --accent: #00ff88;
+      --mono: 'Courier New', monospace;
     }
-    h1 { color: #00ff88; text-align: center; }
-    .session-box {
-      background: #333;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      margin: 20px 0;
+    body {
+      margin: 0; padding: 2rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { text-align: center; color: var(--accent); margin-bottom: 1.5rem; }
+    .card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     #key {
-      font-size: 28px;
-      font-family: monospace;
-      color: #00ff88;
-      letter-spacing: 2px;
-      margin: 10px 0;
-      padding: 10px;
+      font-family: var(--mono);
+      font-size: 1.6rem;
       background: #000;
-      border-radius: 5px;
+      color: var(--accent);
+      padding: 0.8rem;
+      border-radius: 6px;
+      display: inline-block;
+      min-width: 300px;
+      text-align: center;
+      letter-spacing: 1.5px;
     }
     button {
-      background: #00ff88;
+      background: var(--accent);
       color: #000;
       border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 5px;
+      padding: 0.7rem 1.2rem;
+      margin: 0.3rem;
+      border-radius: 6px;
+      font-weight: bold;
       cursor: pointer;
-      margin: 0 10px;
+      transition: 0.2s;
     }
-    button:hover { background: #00cc66; }
-    #status { font-size: 18px; margin: 20px 0; }
+    button:hover { background: #00cc66; transform: scale(1.05); }
+    #status { font-size: 1.1rem; font-weight: bold; }
     #data {
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      max-height: 600px;
+      background: #000;
+      color: #0f0;
+      padding: 1rem;
+      border-radius: 8px;
+      max-height: 60vh;
       overflow-y: auto;
-      font-family: monospace;
-      font-size: 12px;
+      font-family: var(--mono);
+      font-size: 0.9rem;
       white-space: pre-wrap;
     }
-    .connected { color: #00ff88; }
-    .disconnected { color: #ff4444; }
+    .footer { text-align: center; margin-top: 2rem; font-size: 0.9rem; color: #777; }
   </style>
 </head>
 <body>
-  <h1>🎮 Roblox Workspace Parts Streamer</h1>
-  
-  <div class="session-box">
-    <label><strong>📋 Session Key (Copy & Paste into Lua):</strong></label><br>
-    <div id="key">Generating...</div>
-    <br>
-    <button onclick="copyKey()">📋 Copy Key</button>
-    <button onclick="refreshKey()">🔄 New Key</button>
+  <div class="container">
+    <h1>Roblox Workspace Live Stream</h1>
+
+    <div class="card">
+      <p><strong>Session Key (Copy & Paste into Lua):</strong></p>
+      <div id="key">Generating...</div>
+      <div style="margin-top:1rem">
+        <button onclick="copyKey()">Copy Key</button>
+        <button onclick="newKey()">New Key</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="status">Connecting...</div>
+      <pre id="data">Waiting for Roblox data...\n\nExecute the Lua script after pasting the key!</pre>
+    </div>
+
+    <div class="footer">
+      Powered by GitHub Pages + Actions | No backend required
+    </div>
   </div>
-  
-  <div id="status" class="disconnected">🔌 Connecting to server...</div>
-  
-  <h2>📊 Live Game Data (Workspace BaseParts):</h2>
-  <div id="data">Waiting for data... <br>💡 Execute Lua script in Roblox after copying key!</div>
 
   <script src="script.js"></script>
 </body>
