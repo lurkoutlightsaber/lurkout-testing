@@ -21,9 +21,9 @@ jobs:
         env:
           PAYLOAD: ${{ github.event.client_payload }}
         run: |
-          KEY=$(echo "$PAYLOAD" | jq -r .key)
-          TYPE=$(echo "$PAYLOAD" | jq -r .type)
-          DATA=$(echo "$PAYLOAD" | jq -c .data)
+          KEY=$(echo "$PAYLOAD" | jq -r '.key // empty')
+          TYPE=$(echo "$PAYLOAD" | jq -r '.type // empty')
+          DATA=$(echo "$PAYLOAD" | jq -c '.data // empty')
 
           if [ -z "$KEY" ] || [ "$KEY" = "null" ]; then
             echo "Missing key"
