@@ -1,59 +1,75 @@
-// === PERSISTENT KEY (NO SECRETS) ===
-let SESSION_KEY = localStorage.getItem('roblox_key');
-if (!SESSION_KEY) {
-  SESSION_KEY = "ROBLOX-" + Date.now().toString(36).toUpperCase();
-  localStorage.setItem('roblox_key', SESSION_KEY);
-}
-
-const keyEl = document.getElementById('key');
+let PAIRED_KEY = null;
 const statusEl = document.getElementById('status');
 const dataEl = document.getElementById('data');
 const debugEl = document.getElementById('debug-log');
 const debugPanel = document.getElementById('debug');
-
-keyEl.textContent = SESSION_KEY;
+const loginCard = document.getElementById('login-card');
+const controlPanel = document.getElementById('control-panel');
+const pairedKeyEl = document.getElementById('paired-key');
 
 function log(msg) {
-  const time = new Date().toLocaleTimeString();
-  debugEl.innerHTML += `<br>[${time}] ${msg}`;
+  const t = new Date().toLocaleTimeString();
+  debugEl.innerHTML += `<br>[${t}] ${msg}`;
   debugPanel.scrollTop = debugPanel.scrollHeight;
 }
 
-function copyKey() {
-  navigator.clipboard.writeText(SESSION_KEY).then(() => {
-    statusEl.textContent = "Key copied!";
-    statusEl.className = "status-ok";
-    setTimeout(() => statusEl.textContent = "Waiting...", 1500);
+function login() {
+  const input = document.getElementById('input-key').value.trim();
+  if (!input) return alert("Enter a key!");
+  PAIRED_KEY = input;
+  pairedKeyEl.textContent = PAIRED_KEY;
+  loginCard.style.display = 'none';
+  controlPanel.style.display = 'block';
+  statusEl.textContent = "Paired! Ready to send.";
+  statusEl.className = "status-ok";
+  log(`Paired with key: ${PAIRED_KEY}`);
+  loadData();
+}
+
+function toggleDebug() { debugPanel.classList.toggle('show'); }
+
+// === SEND COMMANDS VIA URL PARAMS (Roblox will poll) ===
+function sendCommand(type) {
+  const url = `api/command.json?t=${Date.now()}`;
+  fetch(url).then(r => r.json()).then(data => {
+    if (data.key !== PAIRED_KEY) {
+      alert("Invalid session key! Re-login.");
+      return;
+    }
+    if (data.command !== type) {
+      log(`Sending command: ${type}`);
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: PAIRED_KEY, command: type, timestamp: Date.now() })
+      }).then(() => log(`Command sent: ${type}`));
+    }
   });
 }
 
-function resetKey() {
-  if (confirm("Reset key?")) {
-    localStorage.removeItem('roblox_key');
-    location.reload();
-  }
-}
-
-function toggleDebug() {
-  debugPanel.classList.toggle('show');
-}
+function sendFullTree() { sendCommand('full_tree'); }
+function sendWorkspace() { sendCommand('workspace'); }
+function sendPlayers() { sendCommand('players'); }
 
 // === LOAD DATA ===
 async function loadData() {
   try {
     const res = await fetch(`api/data.json?t=${Date.now()}`);
-    log(`Fetch → ${res.status} ${res.statusText}`);
+    log(`Fetch data → ${res.status}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
     const json = await res.json();
-    const count = json.parts?.length || 0;
+
+    if (json.key !== PAIRED_KEY) {
+      statusEl.textContent = "Key mismatch! Re-login.";
+      statusEl.className = "status-error";
+      return;
+    }
+
+    const count = json.parts?.length || Object.keys(json.tree || {}).length || json.players?.length || 0;
     const time = json.lastUpdate ? new Date(json.lastUpdate).toLocaleTimeString() : 'never';
-
-    statusEl.textContent = `Live: ${time} | ${count} parts`;
+    statusEl.textContent = `Live: ${time} | ${count} items`;
     statusEl.className = "status-ok";
-
     dataEl.textContent = JSON.stringify(json, null, 2);
-    log(`Loaded ${count} parts`);
   } catch (err) {
     statusEl.textContent = `Error: ${err.message}`;
     statusEl.className = "status-error";
@@ -61,6 +77,5 @@ async function loadData() {
   }
 }
 
-loadData();
 setInterval(loadData, 3000);
-log("Session key: " + SESSION_KEY);
+log("Control panel ready.");

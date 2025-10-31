@@ -1,8 +1,8 @@
-name: Update Roblox Parts
+name: Update Roblox Data
 
 on:
   repository_dispatch:
-    types: [roblox_parts]
+    types: [roblox_update]
 
 jobs:
   update:
@@ -22,9 +22,9 @@ jobs:
           PAYLOAD: ${{ github.event.client_payload }}
         run: |
           KEY=$(echo "$PAYLOAD" | jq -r .key)
-          PARTS=$(echo "$PAYLOAD" | jq -c .parts)
+          TYPE=$(echo "$PAYLOAD" | jq -r .type)
+          DATA=$(echo "$PAYLOAD" | jq -c .data)
 
-          # NO SECRET — KEY IS IN PAYLOAD
           if [ -z "$KEY" ] || [ "$KEY" = "null" ]; then
             echo "Missing key"
             exit 1
@@ -33,14 +33,14 @@ jobs:
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           cat > api/data.json <<EOF
           {
-            "lastUpdate": "$TIMESTAMP",
             "key": "$KEY",
-            "parts": $PARTS
+            "lastUpdate": "$TIMESTAMP",
+            "$TYPE": $DATA
           }
           EOF
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions@github.com"
           git add api/data.json
-          git commit -m "Parts update - $TIMESTAMP" || echo "No changes"
+          git commit -m "Update $TYPE - $TIMESTAMP" || echo "No changes"
           git push || echo "Push failed"
