@@ -1,8 +1,8 @@
-// === PERSISTENT SESSION KEY ===
-let SESSION_KEY = localStorage.getItem('roblox_session_key');
+// === PERSISTENT KEY (NO SECRETS) ===
+let SESSION_KEY = localStorage.getItem('roblox_key');
 if (!SESSION_KEY) {
-  SESSION_KEY = crypto.randomUUID().toUpperCase();
-  localStorage.setItem('roblox_session_key', SESSION_KEY);
+  SESSION_KEY = "ROBLOX-" + Date.now().toString(36).toUpperCase();
+  localStorage.setItem('roblox_key', SESSION_KEY);
 }
 
 const keyEl = document.getElementById('key');
@@ -28,8 +28,8 @@ function copyKey() {
 }
 
 function resetKey() {
-  if (confirm("Reset session key? All current connections will break.")) {
-    localStorage.removeItem('roblox_session_key');
+  if (confirm("Reset key?")) {
+    localStorage.removeItem('roblox_key');
     location.reload();
   }
 }
@@ -42,6 +42,7 @@ function toggleDebug() {
 async function loadData() {
   try {
     const res = await fetch(`api/data.json?t=${Date.now()}`);
+    log(`Fetch → ${res.status} ${res.statusText}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
@@ -60,8 +61,6 @@ async function loadData() {
   }
 }
 
-// Fast refresh
 loadData();
 setInterval(loadData, 3000);
-
-log("Session key loaded from storage.");
+log("Session key: " + SESSION_KEY);

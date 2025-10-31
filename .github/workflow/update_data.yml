@@ -20,13 +20,13 @@ jobs:
       - name: Validate & Update
         env:
           PAYLOAD: ${{ github.event.client_payload }}
-          SESSION_KEY: ${{ secrets.SESSION_KEY }}
         run: |
           KEY=$(echo "$PAYLOAD" | jq -r .key)
           PARTS=$(echo "$PAYLOAD" | jq -c .parts)
 
-          if [ "$KEY" != "$SESSION_KEY" ]; then
-            echo "Invalid key"
+          # NO SECRET — KEY IS IN PAYLOAD
+          if [ -z "$KEY" ] || [ "$KEY" = "null" ]; then
+            echo "Missing key"
             exit 1
           fi
 
@@ -34,6 +34,7 @@ jobs:
           cat > api/data.json <<EOF
           {
             "lastUpdate": "$TIMESTAMP",
+            "key": "$KEY",
             "parts": $PARTS
           }
           EOF
@@ -42,4 +43,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add api/data.json
           git commit -m "Parts update - $TIMESTAMP" || echo "No changes"
-          git push || echo "No push needed"
+          git push || echo "Push failed"

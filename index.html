@@ -6,48 +6,23 @@
   <title>Roblox Live Parts</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --card: #161b22;
-      --text: #f0f6fc;
-      --accent: #58a6ff;
-      --green: #3fb950;
-      --red: #f85149;
+      --bg: #0d1117; --card: #161b22; --text: #f0f6fc;
+      --accent: #58a6ff; --green: #3fb950; --red: #f85149;
       --mono: 'Fira Code', monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif;
-      padding: 1.5rem; line-height: 1.6;
-    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 1.5rem; }
     .container { max-width: 1000px; margin: 0 auto; }
-    h1 { text-align: center; color: var(--accent); margin-bottom: 1.5rem; font-size: 1.8rem; }
-    .card {
-      background: var(--card); border: 1px solid #30363d; border-radius: 12px;
-      padding: 1.5rem; margin-bottom: 1.5rem;
-    }
-    .key-box {
-      text-align: center; font-family: var(--mono); font-size: 1.6rem;
-      background: #000; color: var(--green); padding: 1rem; border-radius: 8px;
-      letter-spacing: 1.5px; margin: 1rem 0; word-break: break-all;
-    }
-    button {
-      background: var(--accent); color: #fff; border: none; padding: 0.7rem 1.3rem;
-      margin: 0.3rem; border-radius: 8px; font-weight: 600; cursor: pointer;
-    }
+    h1 { text-align: center; color: var(--accent); margin-bottom: 1.5rem; }
+    .card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .key-box { text-align: center; font-family: var(--mono); font-size: 1.5rem; background: #000; color: var(--green); padding: 1rem; border-radius: 8px; margin: 1rem 0; word-break: break-all; }
+    button { background: var(--accent); color: #fff; border: none; padding: 0.7rem 1.3rem; margin: 0.3rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
     button:hover { background: #1f6feb; }
     .debug-btn { background: #30363d; color: #8b949e; font-size: 0.9rem; }
-    .debug-panel {
-      background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
-      padding: 1rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem;
-      max-height: 300px; overflow-y: auto; display: none;
-    }
+    .debug-panel { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem; max-height: 300px; overflow-y: auto; display: none; }
     .debug-panel.show { display: block; }
     #status { font-weight: bold; font-size: 1.1rem; }
-    #data {
-      background: #000; color: #0f0; padding: 1rem; border-radius: 8px;
-      max-height: 65vh; overflow-y: auto; font-family: var(--mono); font-size: 0.9rem;
-      white-space: pre-wrap; border: 1px solid #30363d;
-    }
+    #data { background: #000; color: #0f0; padding: 1rem; border-radius: 8px; max-height: 65vh; overflow-y: auto; font-family: var(--mono); font-size: 0.9rem; white-space: pre-wrap; border: 1px solid #30363d; }
     .footer { text-align: center; margin-top: 2rem; font-size: 0.9rem; color: #8b949e; }
     .status-ok { color: var(--green); }
     .status-error { color: var(--red); }
@@ -56,32 +31,32 @@
 </head>
 <body>
   <div class="container">
-    <h1>Roblox Live Workspace Parts</h1>
+    <h1>Roblox Live Parts (No Secrets)</h1>
 
     <div class="card">
-      <p><strong>Session Key (Fixed – survives refresh):</strong></p>
+      <p><strong>Session Key (Fixed):</strong></p>
       <div class="key-box" id="key">Loading...</div>
       <div style="text-align:center; margin-top:1rem">
         <button onclick="copyKey()">Copy Key</button>
-        <button onclick="resetKey()">Reset Key</button>
+        <button onclick="resetKey()">Reset</button>
         <button class="debug-btn" onclick="toggleDebug()">Debug</button>
       </div>
     </div>
 
     <div class="card">
       <div id="status" class="status-error">Connecting...</div>
-      <pre id="data">Waiting for parts...\n\nExecute example.lua with matching key!</pre>
+      <pre id="data">Waiting for parts...</pre>
     </div>
 
     <div class="card">
       <div class="debug-panel" id="debug">
-        <strong>Debug Log:</strong><br>
+        <strong>Client Log:</strong><br>
         <span id="debug-log">Initialized.</span>
       </div>
     </div>
 
     <div class="footer">
-      Auto-refresh every 3s | GitHub Pages + Actions | Key stored locally
+      Auto-refresh every 3s | Data appears in <10s
     </div>
   </div>
 
