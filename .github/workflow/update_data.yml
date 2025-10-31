@@ -1,8 +1,8 @@
-name: Update Roblox Game Tree
+name: Update Roblox Parts
 
 on:
   repository_dispatch:
-    types: [roblox_tree]
+    types: [roblox_parts]
 
 jobs:
   update:
@@ -14,16 +14,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Validate & Update
         env:
           PAYLOAD: ${{ github.event.client_payload }}
           SESSION_KEY: ${{ secrets.SESSION_KEY }}
         run: |
           KEY=$(echo "$PAYLOAD" | jq -r .key)
-          TREE=$(echo "$PAYLOAD" | jq -c .tree)
+          PARTS=$(echo "$PAYLOAD" | jq -c .parts)
 
           if [ "$KEY" != "$SESSION_KEY" ]; then
-            echo "Invalid session key"
+            echo "Invalid key"
             exit 1
           fi
 
@@ -31,12 +34,12 @@ jobs:
           cat > api/data.json <<EOF
           {
             "lastUpdate": "$TIMESTAMP",
-            "tree": $TREE
+            "parts": $PARTS
           }
           EOF
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions@github.com"
           git add api/data.json
-          git commit -m "Game tree update - $TIMESTAMP"
-          git push || echo "No changes to push"
+          git commit -m "Parts update - $TIMESTAMP" || echo "No changes"
+          git push || echo "No push needed"

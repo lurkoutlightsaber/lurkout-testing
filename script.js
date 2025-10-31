@@ -1,7 +1,9 @@
-// === AUTO SESSION KEY ===
-const SESSION_KEY = crypto.randomUUID().toUpperCase();
-const REPO_OWNER = "lurkoutlightsaber";
-const REPO_NAME = "lurkout-testing";
+// === PERSISTENT SESSION KEY ===
+let SESSION_KEY = localStorage.getItem('roblox_session_key');
+if (!SESSION_KEY) {
+  SESSION_KEY = crypto.randomUUID().toUpperCase();
+  localStorage.setItem('roblox_session_key', SESSION_KEY);
+}
 
 const keyEl = document.getElementById('key');
 const statusEl = document.getElementById('status');
@@ -21,12 +23,13 @@ function copyKey() {
   navigator.clipboard.writeText(SESSION_KEY).then(() => {
     statusEl.textContent = "Key copied!";
     statusEl.className = "status-ok";
-    setTimeout(() => statusEl.textContent = "Waiting for data...", 2000);
+    setTimeout(() => statusEl.textContent = "Waiting...", 1500);
   });
 }
 
-function newKey() {
-  if (confirm("Generate new key? Current session will end.")) {
+function resetKey() {
+  if (confirm("Reset session key? All current connections will break.")) {
+    localStorage.removeItem('roblox_session_key');
     location.reload();
   }
 }
@@ -42,14 +45,14 @@ async function loadData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
-    const count = json.tree ? Object.keys(json.tree).length : 0;
+    const count = json.parts?.length || 0;
     const time = json.lastUpdate ? new Date(json.lastUpdate).toLocaleTimeString() : 'never';
 
-    statusEl.textContent = `Connected: ${time} | ${count} objects`;
+    statusEl.textContent = `Live: ${time} | ${count} parts`;
     statusEl.className = "status-ok";
 
     dataEl.textContent = JSON.stringify(json, null, 2);
-    log(`Data loaded: ${count} objects`);
+    log(`Loaded ${count} parts`);
   } catch (err) {
     statusEl.textContent = `Error: ${err.message}`;
     statusEl.className = "status-error";
@@ -57,11 +60,8 @@ async function loadData() {
   }
 }
 
-// Auto-refresh
+// Fast refresh
 loadData();
 setInterval(loadData, 3000);
 
-// Expose for debugging
-window.SESSION_KEY = SESSION_KEY;
-window.REPO = { owner: REPO_OWNER, name: REPO_NAME };
-log("Session key generated.");
+log("Session key loaded from storage.");
